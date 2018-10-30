@@ -1,11 +1,16 @@
 import re
 
-def clear_emojis(txt):
 
+def clear_emojis(txt):
+    global pattern
+    emoji_pattern = re.compile(pattern, flags=re.UNICODE)
+    return emoji_pattern.sub(r'', txt)
+
+
+def find_emojis(txt):
     global pattern
     emoji_pattern = re.compile(pattern, flags=re.UNICODE)
     return emoji_pattern.findall(txt)
-    # return emoji_pattern.sub(r'', txt)
 
 
 pattern = u"\U0001F600|" \
@@ -130,7 +135,6 @@ pattern = u"\U0001F600|" \
           u"\U0001F9D3|" \
           u"\U0001F474|" \
           u"\U0001F475|" \
-          u"\U0000200D|" \
           u"\U00002695|" \
           u"\U0000FE0F|" \
           u"\U0001F393|" \
