@@ -23,7 +23,7 @@ class Preprocessor:
         text = re.sub('\u061F', '', text)  # ?
         text = re.sub('\u060C', '', text)  # comma
         text = re.sub('\u061B', '', text)  # semicolon
-        text = re.sub('[?!@#$\'",.;:()|]', '', text)
+        text = re.sub('[?!@#$\'",.;:()|/]', '', text)
         return text
 
     def clear_stopwords(self, words):
