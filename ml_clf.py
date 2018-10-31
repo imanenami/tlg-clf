@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.decomposition import NMF
+from scipy.sparse import hstack
 from nlp_tools import Preprocessor
 from emojis import find_emojis
 
@@ -36,7 +37,9 @@ cvec_text.fit(df_train.pp_text)
 cvec_emoji = CountVectorizer(encoding='utf-8', tokenizer=find_emojis, max_features=50)
 cvec_emoji.fit(df_train.text)
 
-text_features = cvec_text.transform(df.pp_text)
+text_features = cvec_text.transform(df_train.pp_text)
+emoji_features = cvec_emoji.transform(df_train.text)
+features = hstack([text_features, emoji_features])
 
 nmf = NMF(n_components=100)
 nmf.fit(text_features)
