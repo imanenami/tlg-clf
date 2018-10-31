@@ -2,8 +2,10 @@ import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.decomposition import NMF
-from sklearn.multiclass import OneVsOneClassifier
+from sklearn.multiclass import OneVsOneClassifier, OneVsRestClassifier
 from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from scipy.sparse import hstack
 from nlp_tools import Preprocessor
 from emojis import find_emojis
@@ -46,4 +48,9 @@ nmf = NMF(n_components=100)
 nmf.fit(text_features)
 reduced_text_features = nmf.transform(text_features)
 
+X = hstack([reduced_text_features, emoji_features])
+y = pd.get_dummies(df_train.label).values
 
+#clf = OneVsRestClassifier(LogisticRegression())
+clf = RandomForestClassifier(n_estimators=64, max_depth=16)
+clf.fit(X, y)
