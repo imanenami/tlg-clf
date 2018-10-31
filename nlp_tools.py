@@ -43,6 +43,8 @@ class Preprocessor:
         return stemmed
 
     def preprocess_pipeline(self, input, steps=[]):
+        VALID_STEPS = ['normalize', 'clear_emojis', 'clear_punctuation', 'clear_stopwords', 'tokenize', 'stem']
         for step in steps:
+            assert step in VALID_STEPS
             input = getattr(self, step)(input)
         return input

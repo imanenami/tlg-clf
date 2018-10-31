@@ -11,7 +11,7 @@ pp = Preprocessor()
 df = pd.read_excel('C:\\Users\\mjzifan\\Documents\\tlg_data.xlsx', encoding='utf-8')
 df.dropna(inplace=True)
 
-# Drop labels for which we have not enough data
+# Drop labels for which we don't have enough data
 LABELS_WITH_NOT_ENOUGH_DATA = [5, 8, 9]
 for label in LABELS_WITH_NOT_ENOUGH_DATA:
     df.drop(df[df.label == label].index, axis=0, inplace=True)
