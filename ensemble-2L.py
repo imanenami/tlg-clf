@@ -3,11 +3,6 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer, Ha
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.preprocessing import MaxAbsScaler
-from sklearn.decomposition import NMF
-from sklearn.multiclass import OneVsOneClassifier, OneVsRestClassifier
-from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import confusion_matrix
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from scipy.sparse import hstack
 from nlp_tools import Preprocessor
@@ -34,15 +29,19 @@ train_indices, test_indices, _, _ =\
 df_train = df.iloc[train_indices, :]
 df_test = df.iloc[test_indices, :]
 
+# Battle between news / non-news
+df_train_copy = df_train.copy()
+df_train.label[df_train.label != 1] = 2
+
 # Our NLP pre-processing pipeline
 steps = ['clear_links', 'clear_emojis', 'clear_punctuation']
 df_train['pp_text'] = df_train.text.map(lambda x: pp.preprocess_pipeline(str(x), steps))
 
 cvec_text = CountVectorizer(encoding='utf-8', tokenizer=pp.filtered_tokenize, stop_words=pp.stopwords_list,
-                            max_features=3000)
+                            max_features=4000)
 cvec_text.fit(df_train.pp_text)
 
-cvec_emoji = CountVectorizer(encoding='utf-8', tokenizer=find_emojis, max_features=100)
+cvec_emoji = CountVectorizer(encoding='utf-8', tokenizer=find_emojis, max_features=200)
 cvec_emoji.fit(df_train.text)
 
 text_features = cvec_text.transform(df_train.pp_text)
@@ -59,14 +58,9 @@ scaler.fit(features)
 features = scaler.transform(features)
 
 y = pd.get_dummies(df_train.label).values
-#X = SelectKBest(chi2, k=1000).fit_transform(features, y)
-X = features
+X = SelectKBest(chi2, k=1000).fit_transform(features, y)
+#X = features
 
 clf = RandomForestClassifier(n_estimators=512, min_samples_split=3)
-#clf.fit(X, y)
-
 scores = cross_val_score(clf, X, y, cv=5)
 print(scores, scores.mean())
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=222)
-clf.fit(X_train, y_train)

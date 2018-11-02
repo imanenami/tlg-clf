@@ -26,6 +26,13 @@ class Preprocessor:
         text = re.sub('[?!@#$\'",.;:()|/]', '', text)
         return text
 
+    def clear_links(self, text):
+        url_pattern = re.compile('(\w+:\/{2}[\d\w-]+(?:\.[\d\w-]+)*(?:(?:\/[^\s/]*))*)', flags=re.UNICODE)
+        tme_pattern = re.compile('t\.me\/[^\s]+')
+        text = url_pattern.sub(r'', text)
+        text = tme_pattern.sub(r'', text)
+        return text
+
     def clear_stopwords(self, words):
         clean_words = list()
         for word in words:
@@ -36,6 +43,10 @@ class Preprocessor:
     def tokenize(self, text):
         return hazm.word_tokenize(text)
 
+    def filtered_tokenize(self, text, min_length=3):
+        func = lambda x: len(x) >= min_length
+        return list(filter(func, self.tokenize(text)))
+
     def stem(self, words):
         stemmed = list()
         for word in words:
@@ -43,7 +54,8 @@ class Preprocessor:
         return stemmed
 
     def preprocess_pipeline(self, input, steps=[]):
-        VALID_STEPS = ['normalize', 'clear_emojis', 'clear_punctuation', 'clear_stopwords', 'tokenize', 'stem']
+        VALID_STEPS = ['normalize', 'clear_emojis', 'clear_punctuation', 'clear_links',
+                       'clear_stopwords', 'tokenize', 'filtered_tokenize', 'stem']
         for step in steps:
             assert step in VALID_STEPS
             input = getattr(self, step)(input)
